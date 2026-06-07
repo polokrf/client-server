@@ -34,6 +34,16 @@ async function run() {
   const myColl = myDB.collection('client-tables');
 
   try {
+
+    app.post('/insert-client', async (req, res) => {
+      const body = req.body;
+      body.createdAt = new Date();
+      body.status='Active'
+
+      const result = await myColl.insertOne(body)
+      res.status(201).send(result)
+    })
+
     app.get('/get-client-data', async (req, res) => {
       const { search } = req.query;
       const query = {};
@@ -41,6 +51,7 @@ async function run() {
         query.$or = [
           { client_name: { $regex: search, $options: 'i' } },
           { mobile: { $regex: search, $options: 'i' } },
+          { ip: { $regex: search, $options: 'i' } },
         ];
          
     }
@@ -62,11 +73,18 @@ async function run() {
       res.status(200).send(result);
     });
 
-    // Send a ping to confirm a successful connection
-    await client.db('admin').command({ ping: 1 });
-    console.log(
-      'Pinged your deployment. You successfully connected to MongoDB!',
-    );
+    app.delete('/delete-client/:id', async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      const result = await myColl.deleteOne(query);
+      res.status(200).send(result)
+    })
+
+    // // Send a ping to confirm a successful connection
+    // await client.db('admin').command({ ping: 1 });
+    // console.log(
+    //   'Pinged your deployment. You successfully connected to MongoDB!',
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
