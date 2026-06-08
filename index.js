@@ -56,7 +56,7 @@ async function run() {
          
     }
       
-      const result = await myColl.find(query).toArray();
+      const result = await myColl.find(query).sort({sl:1}).toArray();
       
       res.status(200).send(result);
     });
